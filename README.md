@@ -1,9 +1,5 @@
 # DeepRL Algorithms — From Pixels to Locomotion
 
-<p align="center">
-  <img src="docs/media/banner.png" alt="DeepRL Algorithms banner" width="100%"/>
-</p>
-
 <p align="left">
   Unified Deep Reinforcement Learning project comparing value-based and actor-critic methods for MuJoCo locomotion from RGB observations.
 </p>
