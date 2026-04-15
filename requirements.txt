@@ -1,0 +1,25 @@
+# PyTorch
+torch>=2.1.0
+torchvision>=0.16.0
+
+# Entornos de RL
+gymnasium>=1.2.0
+
+# DeepMind Control Suite (dm_control)
+dm_control>=1.0.10
+
+# Para simulación física MuJoCo
+mujoco>=2.3.9
+mujoco-py
+
+# Procesamiento de imágenes y utilidades
+numpy>=1.25.0
+matplotlib>=3.8.0
+opencv-python>=4.8.0
+
+# Wrappers opcionales
+gymnasium[accept-rom-license]  # si usas entornos con licencias
+gymnasium[other]
+
+# Para manejo de progreso (opcional)
+tqdm>=4.66.0
