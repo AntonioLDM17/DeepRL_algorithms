@@ -81,6 +81,126 @@ flowchart LR
 ```mermaid
 flowchart TB
     X[Shared visual observations] --> Y{Control mode}
+    Y --> Z1[Discretized control: DQN / Rainbow]
+    Y --> Z2[Native continuous control: PPO / SAC]
+```
+
+---
+
+## Repository structure (real paths)
+
+```text
+DeepRL_algorithms/
+├── README.md
+├── requirements.txt
+├── scripts/
+│   └── generate_media.py
+├── Reports/
+│   ├── DQN_Rainbow.pdf
+│   └── MUIA_P3.pdf
+├── videos/
+│   ├── walker_train_dqn_new_walker-episode-70000.mp4
+│   ├── walker_train_rainbow-episode-35000.mp4
+│   ├── walker_train_rainbow_noPER-episode-44000.mp4
+│   ├── walker_train_rainbow_noDIST-episode-162000.mp4
+│   ├── walker_train_rainbow_noPER_noDIST-episode-166000.mp4
+│   ├── ppo_original_experiment_result.mp4
+│   └── sac_original_experiment_result.mp4
+└── src/
+    ├── config.py
+    ├── utils.py
+    ├── agents/
+    │   ├── dqn/
+    │   ├── rainbow/
+    │   ├── ppo/
+    │   └── sac/
+    ├── environments/
+    ├── train/
+    │   ├── train_dqn.py
+    │   ├── train_rainbow.py
+    │   ├── train_ppo_cont.py
+    │   ├── train_sac_cont.py
+    │   ├── train_ppo_cont_optuna.py
+    │   ├── train_sac_cont_optuna.py
+    │   └── resume_checkpoint.py
+    └── evaluate/
+        ├── evaluate_dqn.py
+        ├── evaluate_rainbow.py
+        └── evaluate_sac_cont.py
+```
+
+---
+
+## Visual results (project videos)
+
+| Algorithm | Video artifact |
+|---|---|
+| DQN | [`videos/walker_train_dqn_new_walker-episode-70000.mp4`](videos/walker_train_dqn_new_walker-episode-70000.mp4) |
+| Rainbow | [`videos/walker_train_rainbow-episode-35000.mp4`](videos/walker_train_rainbow-episode-35000.mp4) |
+| PPO | [`videos/ppo_original_experiment_result.mp4`](videos/ppo_original_experiment_result.mp4) |
+| SAC | [`videos/sac_original_experiment_result.mp4`](videos/sac_original_experiment_result.mp4) |
+
+### Rainbow ablation videos
+
+- [`videos/walker_train_rainbow_noPER-episode-44000.mp4`](videos/walker_train_rainbow_noPER-episode-44000.mp4)
+- [`videos/walker_train_rainbow_noDIST-episode-162000.mp4`](videos/walker_train_rainbow_noDIST-episode-162000.mp4)
+- [`videos/walker_train_rainbow_noPER_noDIST-episode-166000.mp4`](videos/walker_train_rainbow_noPER_noDIST-episode-166000.mp4)
+
+### Optional: generate `docs/media/` locally (banner, GIFs, thumbnails)
+
+If you want rich visual assets in your local clone, run:
+
+```bash
+pip install imageio pillow
+python scripts/generate_media.py
+```
+
+This will create assets such as `banner.png`, `architecture_overview.png`, `*_run.gif`, and `rainbow_ablations.png` under `docs/media/`.
+
+---
+
+## Results / key findings
+
+| Finding | Evidence in repository |
+|---|---|
+| Rainbow is tested with explicit component ablations | `noPER`, `noDIST`, `noPER_noDIST` video runs |
+| Value-based methods are adapted to continuous tasks through discrete wrappers | `DiscreteWalkerWrapper` and `DiscreteHumanoidWrapper` + DQN/Rainbow training scripts |
+| PPO and SAC are integrated as native continuous baselines with the same pixel input strategy | `train_ppo_cont.py` and `train_sac_cont.py` |
+| The project is experiment-oriented and reproducible | Shared config, TensorBoard logging, checkpoints, and evaluation scripts |
+
+---
+
+
+### Shared flow
+
+1. MuJoCo environment (`Walker2d` / `Humanoid`)
+2. RGB rendering (`render_mode="rgb_array"`)
+3. Crop + resize (`84x84`)
+4. Frame stacking (`x4`)
+5. Optional reward shaping
+6. Branch:
+   - **Value-based path**: discretization wrappers + DQN/Rainbow
+   - **Actor-critic path**: native continuous actions + PPO/SAC
+
+```mermaid
+flowchart LR
+    A[MuJoCo Env\nWalker2d / Humanoid] --> B[RGB render]
+    B --> C[Crop + Resize 84x84]
+    C --> D[Frame Stack x4]
+    D --> E{Algorithm family}
+    E --> F[DQN / Rainbow\nDiscrete wrappers]
+    E --> G[PPO / SAC\nContinuous actions]
+    F --> H[Replay-based optimization]
+    G --> I[Policy-gradient / entropy regularization]
+    H --> J[TensorBoard + checkpoints + evaluation videos]
+    I --> J
+```
+
+### Value-based vs actor-critic split
+
+```mermaid
+flowchart TB
+    X[Shared visual observations] --> Y{Control mode}
     Y --> Z1[Discretized control]\n[DQN / Rainbow]
     Y --> Z2[Native continuous control]\n[PPO / SAC]
 ```
