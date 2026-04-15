@@ -29,10 +29,15 @@ All methods target the same general challenge: **visual locomotion in MuJoCo fro
 
 ## Project highlights
 
-<p align="center">
-  <img src="docs/media/architecture_overview.png" alt="Unified visual RL pipeline architecture" width="90%"/>
-</p>
+```mermaid
+flowchart LR
+    A[MuJoCo Tasks<br/>Walker2d / Humanoid<br/>RGB rendering] --> B[Shared Visual Pipeline<br/>Crop + resize 84x84<br/>Frame stack x4<br/>uint8 storage]
 
+    B --> C[Value-based branch<br/>Discrete wrappers<br/>DQN<br/>Rainbow]
+    B --> D[Actor-critic branch<br/>Continuous actions<br/>PPO<br/>SAC]
+
+    B --> E[Experiment ops<br/>TensorBoard metrics<br/>Checkpoints<br/>Evaluation videos]
+```
 The project focuses on practical challenges that usually decide real RL performance:
 
 - Learning directly from **pixel observations**
