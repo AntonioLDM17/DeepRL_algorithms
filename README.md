@@ -74,11 +74,6 @@ The project focuses on practical challenges that usually decide real RL performa
   <img src="docs/media/sac_thumb.png" alt="SAC summary thumbnail" width="22%"/>
 </p>
 
-### Rainbow ablations snapshot
-
-<p align="center">
-  <img src="docs/media/rainbow_ablations.png" alt="Rainbow ablation comparison" width="80%"/>
-</p>
 
 ---
 
