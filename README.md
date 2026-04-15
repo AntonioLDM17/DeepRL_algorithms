@@ -1,361 +1,224 @@
-# Deep RL Labs – Discretized Continuous Control from Pixels
+# DeepRL Algorithms — From Pixels to Locomotion
 
-This project is a modular Deep Reinforcement Learning (DRL) framework focused on applying **value-based methods (DQN and Rainbow)** to **continuous-control MuJoCo environments**, using a custom pipeline based on:
+<p align="left">
+  Unified Deep Reinforcement Learning project comparing value-based and actor-critic methods for MuJoCo locomotion from RGB observations.
+</p>
 
-- **Manual action discretization**
-- **Pixel-based observations (RGB + frame stacking)**
-- **Reward shaping**
-
-Instead of using standard continuous-control algorithms (e.g., SAC, TD3, PPO), this repo explores how far we can push **DQN-style methods in continuous domains** by adapting the environment.
-
----
-
-## 🚀 Project Overview
-
-The core idea is simple but non-trivial:
-
-> Convert a continuous-control problem into a discrete one, and solve it using value-based DRL.
-
-This is achieved through a pipeline where:
-
-1. The MuJoCo environment remains continuous internally
-2. A wrapper discretizes the action space into a small set of prototype actions
-3. Observations are converted into RGB images
-4. Frames are stacked to capture dynamics
-5. A reward wrapper reshapes the signal to stabilize learning
-6. DQN or Rainbow is trained on top of this
-
-Supported environments:
-- `Walker2d-v4`
-- `HalfCheetah-v4`
-- `Humanoid-v4`
-
-Supported algorithms:
-- `dqn`
-- `rainbow`
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch"/>
+  <img src="https://img.shields.io/badge/Gymnasium-MuJoCo%20Control-009688" alt="Gymnasium MuJoCo"/>
+  <img src="https://img.shields.io/badge/Domain-Deep%20Reinforcement%20Learning-6A1B9A" alt="Deep RL"/>
+  <img src="https://img.shields.io/badge/Type-Portfolio%20Project-111111" alt="Portfolio"/>
+</p>
 
 ---
 
-## 🧠 Key Design Decisions
+## Overview
 
-### 1. Discretizing Continuous Actions
+This repository is presented as **one unified Deep RL project** where we implement and compare:
 
-Instead of using a full combinatorial discretization, we define **prototype actions**:
+- **DQN**
+- **Rainbow**
+- **PPO**
+- **SAC**
 
-- One no-op action
-- For each joint: a small set of non-zero values applied **only to that joint**
+All methods target the same general challenge: **visual locomotion in MuJoCo from RGB frames**, with a consistent preprocessing pipeline and experiment workflow.
 
-Example (Walker2d):
-- Action dimension: 6
-- `num_bins = 3`
-- Total actions:
+---
+
+## Why this project matters
+
+This project focuses on practical challenges that usually decide real RL performance:
+
+- Learning directly from **pixel observations**
+- Dealing with **continuous control** under two paradigms
+- Using **reward shaping** to improve stability
+- Comparing value-based and actor-critic behavior under shared conditions
+
+---
+
+## Algorithms implemented
+
+| Algorithm | Family | Role in this project | Key implementation details |
+|---|---|---|---|
+| **DQN** | Value-based | Baseline for discretized visual control | Replay buffer, target network, epsilon-greedy |
+| **Rainbow** | Enhanced value-based | Stronger DQN variant on the same setup | PER, Noisy Nets, C51, n-step returns, dueling/double options |
+| **PPO** | On-policy actor-critic | Native continuous-control baseline | Clipped objective + GAE on visual observations |
+| **SAC** | Off-policy actor-critic | High-performance continuous baseline | Stochastic actor, twin critics, entropy temperature tuning |
+
+---
+
+## Unified pipeline
+
+### Shared flow
+
+1. MuJoCo environment (`Walker2d` / `Humanoid`)
+2. RGB rendering (`render_mode="rgb_array"`)
+3. Crop + resize (`84x84`)
+4. Frame stacking (`x4`)
+5. Optional reward shaping
+6. Branch:
+   - **Value-based path**: discretization wrappers + DQN/Rainbow
+   - **Actor-critic path**: native continuous actions + PPO/SAC
+
+```mermaid
+flowchart LR
+    A[MuJoCo Env\nWalker2d / Humanoid] --> B[RGB render]
+    B --> C[Crop + Resize 84x84]
+    C --> D[Frame Stack x4]
+    D --> E{Algorithm family}
+    E --> F[DQN / Rainbow\nDiscrete wrappers]
+    E --> G[PPO / SAC\nContinuous actions]
+    F --> H[Replay-based optimization]
+    G --> I[Policy-gradient / entropy regularization]
+    H --> J[TensorBoard + checkpoints + evaluation videos]
+    I --> J
 ```
 
-1 + 6 * (3 - 1) = 13
+### Value-based vs actor-critic split
 
+```mermaid
+flowchart TB
+    X[Shared visual observations] --> Y{Control mode}
+    Y --> Z1[Discretized control]\n[DQN / Rainbow]
+    Y --> Z2[Native continuous control]\n[PPO / SAC]
 ```
-
-This keeps the action space manageable while still allowing meaningful control via action sequences.
 
 ---
 
-### 2. Visual Observations
+## Repository structure (real paths)
 
-The agent does **not receive state vectors**. Instead:
-
-- RGB frames from `render()`
-- Cropped and resized to `84x84`
-- 4 frames stacked → input shape `(84, 84, 12)`
-
-We intentionally keep **RGB (not grayscale)** because color helps distinguish body parts and posture.
+```text
+DeepRL_algorithms/
+├── README.md
+├── requirements.txt
+├── Reports/
+│   ├── DQN_Rainbow.pdf
+│   └── MUIA_P3.pdf
+├── videos/
+│   ├── walker_train_dqn_new_walker-episode-70000.mp4
+│   ├── walker_train_rainbow-episode-35000.mp4
+│   ├── walker_train_rainbow_noPER-episode-44000.mp4
+│   ├── walker_train_rainbow_noDIST-episode-162000.mp4
+│   ├── walker_train_rainbow_noPER_noDIST-episode-166000.mp4
+│   ├── ppo_original_experiment_result.mp4
+│   └── sac_original_experiment_result.mp4
+└── src/
+    ├── config.py
+    ├── utils.py
+    ├── agents/
+    │   ├── dqn/
+    │   ├── rainbow/
+    │   ├── ppo/
+    │   └── sac/
+    ├── environments/
+    ├── train/
+    │   ├── train_dqn.py
+    │   ├── train_rainbow.py
+    │   ├── train_ppo_cont.py
+    │   ├── train_sac_cont.py
+    │   ├── train_ppo_cont_optuna.py
+    │   ├── train_sac_cont_optuna.py
+    │   └── resume_checkpoint.py
+    └── evaluate/
+        ├── evaluate_dqn.py
+        ├── evaluate_rainbow.py
+        └── evaluate_sac_cont.py
+```
 
 ---
 
-### 3. Reward Shaping
+## Visual results (project videos)
 
-Reward shaping is critical for stability.
+> Binary media assets were intentionally not added to the repo. Use the original project videos under `videos/`.
 
-Example (Walker):
-```
+| Algorithm | Video artifact |
+|---|---|
+| DQN | [`videos/walker_train_dqn_new_walker-episode-70000.mp4`](videos/walker_train_dqn_new_walker-episode-70000.mp4) |
+| Rainbow | [`videos/walker_train_rainbow-episode-35000.mp4`](videos/walker_train_rainbow-episode-35000.mp4) |
+| PPO | [`videos/ppo_original_experiment_result.mp4`](videos/ppo_original_experiment_result.mp4) |
+| SAC | [`videos/sac_original_experiment_result.mp4`](videos/sac_original_experiment_result.mp4) |
 
-r = r_original + 0.1 * x_velocity
+### Rainbow ablation videos
 
-```
-
-Example (Humanoid):
-- Forward velocity (clipped)
-- Height bonus
-- Survival bonus
-- Termination penalty
-
-The goal is to **reinforce useful behavior (moving forward, staying alive)** without changing the task objective too much.
+- [`videos/walker_train_rainbow_noPER-episode-44000.mp4`](videos/walker_train_rainbow_noPER-episode-44000.mp4)
+- [`videos/walker_train_rainbow_noDIST-episode-162000.mp4`](videos/walker_train_rainbow_noDIST-episode-162000.mp4)
+- [`videos/walker_train_rainbow_noPER_noDIST-episode-166000.mp4`](videos/walker_train_rainbow_noPER_noDIST-episode-166000.mp4)
 
 ---
 
-## 📁 Repository Structure
+## Results / key findings
 
-```
-
-src/
-├── agents/
-│   ├── dqn/
-│   └── rainbow/
-├── environments/
-│   ├── walker_wrapper.py
-│   ├── humanoid_wrapper.py
-│   ├── reward_wrapper.py
-│   ├── humanoid_reward_wrapper.py
-│   ├── image_wrapper.py
-│   └── replay_buffer.py
-├── train/
-│   ├── train_dqn.py
-│   ├── train_rainbow.py
-│   └── resume_checkpoint.py
-├── evaluate/
-├── config.py
-├── utils.py
-└── test.py
-
-````
-
-### Key modules:
-
-- `config.py`: global configuration and hyperparameters
-- `environments/`: all wrappers (discretization, reward, image pipeline)
-- `agents/`: DQN and Rainbow implementations
-- `train/`: training and checkpointing scripts
-- `utils.py`: saving, loading, logging
+| Finding | Evidence in repository |
+|---|---|
+| Rainbow is tested with explicit component ablations | `noPER`, `noDIST`, `noPER_noDIST` video runs |
+| Value-based methods are adapted to continuous tasks through discrete wrappers | `DiscreteWalkerWrapper` and `DiscreteHumanoidWrapper` + DQN/Rainbow training scripts |
+| PPO and SAC are integrated as native continuous baselines with the same pixel input strategy | `train_ppo_cont.py` and `train_sac_cont.py` |
+| The project is experiment-oriented and reproducible | Shared config, TensorBoard logging, checkpoints, and evaluation scripts |
 
 ---
 
-## ⚙️ Configuration
+## What this project demonstrates
 
-Important defaults:
-
-```python
-IMAGE_SIZE = 84
-FRAME_STACK = 4
-TOTAL_STEPS = 20_000_000
-BUFFER_SIZE = 100_000
-BATCH_SIZE = 32
-LEARNING_RATE = 1e-4
-GAMMA = 0.99
-TARGET_UPDATE_FREQ = 5000
-````
-
-### Rainbow-specific:
-
-```python
-USE_DOUBLE_DQN = True
-USE_DUELING = True
-USE_PER = True
-USE_NOISY_NETS = True
-USE_DISTRIBUTIONAL = True
-USE_N_STEP = True
-
-N_STEP = 3
-NUM_ATOMS = 51
-V_MIN = -10.0
-V_MAX = 1200.0
-```
-
-⚠️ Note: `V_MAX` is significantly larger than Atari defaults to match MuJoCo reward scales.
+- Deep RL implementation across different algorithm families
+- MuJoCo locomotion with visual inputs
+- Practical design of replay and actor-critic training loops
+- Reward shaping and training-stability engineering
+- Comparative experimentation and ablation mindset
 
 ---
 
-## 🏋️ Training
+## Reproducibility / usage
 
-### Train DQN
+> Commands below map to scripts currently present in this repository.
+
+### Install
 
 ```bash
+pip install -r requirements.txt
+```
+
+### Train
+
+```bash
+# Value-based
 python src/train/train_dqn.py --task walker
-```
-
-### Train Rainbow
-
-```bash
 python src/train/train_rainbow.py --task walker
+
+# Continuous actor-critic
+python src/train/train_ppo_cont.py --task walker --use_shaping
+python src/train/train_sac_cont.py --task walker --use_shaping
 ```
 
-### Resume training
+### Evaluate
 
 ```bash
-python src/train/resume_checkpoint.py --task walker --checkpoint path/to/model.pth
+python src/evaluate/evaluate_dqn.py
+python src/evaluate/evaluate_rainbow.py
+python src/evaluate/evaluate_sac_cont.py --task walker
 ```
 
----
+### Main outputs
 
-## 📊 Logging & Outputs
-
-### TensorBoard
-
-Tracks:
-
-* `Reward/Episode`
-* `Reward/MeanWindow`
-* `Loss/TD_Loss` (DQN)
-* `Loss/DistributionalLoss` (Rainbow)
-* `Loss/MeanSampleLoss` (Rainbow)
-
-### Saved data
-
-```
-checkpoints/<env>/<algo>/
-videos/<env>/<algo>/
-results/<env>/<algo>/
-```
+- `checkpoints/<env>/<algo>/`
+- `results/<env>/<algo>/`
+- `videos/<env>/<algo>/...`
 
 ---
 
-## 🧪 Replay Buffers
+## Future work
 
-### DQN
-
-* Standard replay buffer
-* Stores images as `uint8` for memory efficiency
-
-### Rainbow
-
-* Prioritized Experience Replay (PER)
-* N-step returns
-* SumTree for efficient sampling
+- Multi-seed evaluation with confidence intervals
+- Unified benchmark tables across all algorithms
+- Additional MuJoCo tasks and harder visual settings
+- Better representation learning for pixel-based control
+- End-to-end automated experiment reporting
 
 ---
 
-## 🧠 Algorithms
+## Authors
 
-### DQN
-
-* CNN encoder
-* ε-greedy exploration
-* Target network
-* Gradient clipping
-
-### Rainbow (full)
-
-* Double DQN
-* Dueling architecture
-* PER
-* Noisy Nets (exploration)
-* N-step returns
-* Distributional RL (C51)
-
----
-
-## ⚠️ Known Issues & Pitfalls
-
-### 1. Environment mismatch (VERY IMPORTANT)
-
-Do **not rely on global config** (`EnvConfig.ACTIVE`).
-
-Always check:
-
-* `--task` argument
-* Correct wrapper usage
-* Correct checkpoint path
-
-Otherwise you may:
-
-* Train Walker but save under Humanoid
-* Load incompatible checkpoints
-* Get shape mismatches
-
----
-
-### 2. Rainbow is fragile
-
-Rainbow is much more sensitive than DQN because it combines:
-
-* PER
-* C51
-* Noisy Nets
-* N-step returns
-
-If it doesn’t learn:
-
-* Check C51 projection
-* Check `V_MIN / V_MAX`
-* Check action space consistency
-* Check reward shaping
-
----
-
-### 3. Humanoid is much harder
-
-* Larger action space (17 dims)
-* Discretization is restrictive
-* Requires strong reward shaping
-
-Expect:
-
-* Slower learning
-* Higher instability
-* More tuning required
-
----
-
-## 🔄 Full Training Pipeline
-
-1. Parse `--task`
-2. Build environment (`gym.make`)
-3. Apply:
-
-   * Discretization wrapper
-   * Reward wrapper
-   * Image wrapper
-4. Stack frames → `(84,84,12)`
-5. Agent selects action:
-
-   * DQN → ε-greedy
-   * Rainbow → expectation of distribution
-6. Step environment
-7. Store transition
-8. Sample batch
-9. Update network:
-
-   * DQN → TD loss
-   * Rainbow → distributional loss + PER
-10. Periodically:
-
-* Update target network
-* Save checkpoint
-* Log to TensorBoard
-* Record video
-
----
-
-## 🧾 Final Notes
-
-This project is not just about comparing DQN vs Rainbow.
-
-The main takeaway is:
-
-> In Deep RL, performance depends as much on the **pipeline design** as on the algorithm itself.
-
-Key factors:
-
-* Action discretization
-* Observation preprocessing
-* Reward shaping
-* Training stability
-
-Rainbow can outperform DQN by a large margin — but only if everything is correctly tuned.
-
----
-
-## 📌 Future Work
-
-* Run experiments with multiple seeds
-* Extend ablation to other Rainbow components
-* Improve discretization strategies
-* Explore hybrid methods (value-based + policy-based)
-* Fully integrate PPO into the training pipeline
-
----
-
-## 👥 Authors
-
-* Antonio Lorenzo
-* Andrés Martínez
-* Pablo García
-
+- Antonio Lorenzo
+- Andrés Martínez
+- Pablo García
