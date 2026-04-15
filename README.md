@@ -1,5 +1,9 @@
 # DeepRL Algorithms — From Pixels to Locomotion
 
+<p align="center">
+  <img src="docs/media/banner.png" alt="DeepRL Algorithms banner" width="100%"/>
+</p>
+
 <p align="left">
   Unified Deep Reinforcement Learning project comparing value-based and actor-critic methods for MuJoCo locomotion from RGB observations.
 </p>
@@ -27,14 +31,58 @@ All methods target the same general challenge: **visual locomotion in MuJoCo fro
 
 ---
 
-## Why this project matters
+## Project highlights
 
-This project focuses on practical challenges that usually decide real RL performance:
+<p align="center">
+  <img src="docs/media/architecture_overview.png" alt="Unified visual RL pipeline architecture" width="90%"/>
+</p>
+
+The project focuses on practical challenges that usually decide real RL performance:
 
 - Learning directly from **pixel observations**
 - Dealing with **continuous control** under two paradigms
 - Using **reward shaping** to improve stability
 - Comparing value-based and actor-critic behavior under shared conditions
+
+---
+
+## Visual showcase
+
+### Training runs (GIF previews)
+
+<table>
+  <tr>
+    <td align="center"><b>DQN</b></td>
+    <td align="center"><b>Rainbow</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/media/dqn_run.gif" alt="DQN training run" width="420"/></td>
+    <td><img src="docs/media/rainbow_run.gif" alt="Rainbow training run" width="420"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>PPO</b></td>
+    <td align="center"><b>SAC</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/media/ppo_run.gif" alt="PPO training run" width="420"/></td>
+    <td><img src="docs/media/sac_run.gif" alt="SAC training run" width="420"/></td>
+  </tr>
+</table>
+
+### Algorithm cards
+
+<p align="center">
+  <img src="docs/media/dqn_thumb.png" alt="DQN summary thumbnail" width="22%"/>
+  <img src="docs/media/rainbow_thumb.png" alt="Rainbow summary thumbnail" width="22%"/>
+  <img src="docs/media/ppo_thumb.png" alt="PPO summary thumbnail" width="22%"/>
+  <img src="docs/media/sac_thumb.png" alt="SAC summary thumbnail" width="22%"/>
+</p>
+
+### Rainbow ablations snapshot
+
+<p align="center">
+  <img src="docs/media/rainbow_ablations.png" alt="Rainbow ablation comparison" width="80%"/>
+</p>
 
 ---
 
@@ -74,7 +122,7 @@ flowchart LR
     G --> I[Policy-gradient / entropy regularization]
     H --> J[TensorBoard + checkpoints + evaluation videos]
     I --> J
-````
+```
 
 ### Value-based vs actor-critic split
 
@@ -133,7 +181,7 @@ DeepRL_algorithms/
 
 ## Visual results (project videos)
 
-| Algorithm | Video artifact                                                                                                 |
+| Algorithm | Video artifact |
 | --------- | -------------------------------------------------------------------------------------------------------------- |
 | DQN       | [`videos/walker_train_dqn_new_walker-episode-70000.mp4`](videos/walker_train_dqn_new_walker-episode-70000.mp4) |
 | Rainbow   | [`videos/walker_train_rainbow-episode-35000.mp4`](videos/walker_train_rainbow-episode-35000.mp4)               |
@@ -161,12 +209,12 @@ This will create assets such as `banner.png`, `architecture_overview.png`, `*_ru
 
 ## Results / key findings
 
-| Finding                                                                                      | Evidence in repository                                                               |
+| Finding | Evidence in repository |
 | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Rainbow is tested with explicit component ablations                                          | `noPER`, `noDIST`, `noPER_noDIST` video runs                                         |
-| Value-based methods are adapted to continuous tasks through discrete wrappers                | `DiscreteWalkerWrapper` and `DiscreteHumanoidWrapper` + DQN/Rainbow training scripts |
-| PPO and SAC are integrated as native continuous baselines with the same pixel input strategy | `train_ppo_cont.py` and `train_sac_cont.py`                                          |
-| The project is experiment-oriented and reproducible                                          | Shared config, TensorBoard logging, checkpoints, and evaluation scripts              |
+| Rainbow is tested with explicit component ablations | `noPER`, `noDIST`, `noPER_noDIST` video runs |
+| Value-based methods are adapted to continuous tasks through discrete wrappers | `DiscreteWalkerWrapper` and `DiscreteHumanoidWrapper` + DQN/Rainbow training scripts |
+| PPO and SAC are integrated as native continuous baselines with the same pixel input strategy | `train_ppo_cont.py` and `train_sac_cont.py` |
+| The project is experiment-oriented and reproducible | Shared config, TensorBoard logging, checkpoints, and evaluation scripts |
 
 ---
 
@@ -233,5 +281,3 @@ python src/evaluate/evaluate_sac_cont.py --task walker
 * Antonio Lorenzo
 * Andrés Martínez
 * Pablo García
-
-
